@@ -40,7 +40,7 @@ var Playah = function(flash_obj_name, options) {
 		load_when_ready: function() {
 			for(j=0;j<this.ready_list.length;j++) {
 				var func = this.ready_list[j];
-				func.call();
+				func.call(this); // func can have 'this' set to the Playah instance
 			}
 		},
 
@@ -93,7 +93,36 @@ var Playah = function(flash_obj_name, options) {
 			for (callback in callbacks[json['key']][method]) {
 				callbacks[json['key']][method][callback].call();
 			}
-		}
+		},
+
+		ratio: function(key) {
+			var song = sounds[key]
+			if (song) {
+				var played = song.position;
+				if (!played || played <= 0.1)
+					return 0.0
+				else {
+					try {
+						var length  = song.length;
+						var left    = (length - played);
+						var ratio   = played / length;
+						return ratio;
+					} catch(e) {
+						if (console)
+							console.log(e);
+					}
+				}
+			}
+		},
+
+		percentage: function(key) {
+			var song = sounds[key]
+			if (song) {
+				var percent = this.ratio(key) * 100
+				return percent;
+			}
+		},
+		
 	}
 
 	// set up instance vars if this is first instance of Playah
